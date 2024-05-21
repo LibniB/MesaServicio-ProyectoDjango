@@ -18,6 +18,11 @@ estadoCaso = [
     ('Finalizada','Finalizada')
 ]
 
+tipoSolucion = [
+    ('Parcial','Parcial'),
+    ('Definitiva','Definitiva')
+]
+
 class OficinaAmbiente(models.Model):
     ofiTipo = models.CharField(max_length=15,choices=tipoOficinaAmbiente,
                               db_comment="tipo de oficina")
@@ -81,8 +86,51 @@ class Caso(models.Model):
     
     casEstado = models.CharField(max_length=20, choices=estadoCaso)
     
+    
+    fechaHoraCreacion = models.DateTimeField(auto_now_add=True,
+                                             db_comment="Fecha y hora del registro")
+    
+    fechaHoraActualizacion = models.DateTimeField(auto_now_add=True,
+                                            db_comment="fecha y hora de ultima actualizacion")
+    def __str__(self)-> str:
+        return 
+
+class TipoProcedimiento(models.Model):
+    tipNombre = models.CharField(max_length=20,unique=True,
+                                 db_comment="nombre del tipo de procedimiento")
+    
+    tipDescripcion = models.TextField(max_length=1000,
+                                      db_comment="texto con la descripcion del tipo de procedimiento")
+    
+    fechaHoraCreacion = models.DateTimeField(auto_now_add=True,
+                                            db_comment="fecha y hora de la solicitud")
+    
+    fechaHoraActualizacion = models.DateTimeField(auto_now_add=True,
+                                            db_comment="fecha y hora de ultima actualizacion")
+
+    def __str__(self)-> str:
+        return self.tipNombre
+    
+class SolucionCaso(models.Model):
+    solCaso = models.ForeignKey(Caso,on_delete=models.PROTECT,
+                                db_comment="hace referencia al caso que se genera ")
+    solProcedimiento = models.TextField(max_length=2000,db_comment="Texto del procedimineto realizado en la solucion del caso")
+    
+    solTipoSolucion = models.CharField(max_length=20,choices=tipoSolucion,
+                                       db_comment="tipo de solucion, parcial o definitiva")
+    
+    fechaHoraCreacion = models.DateTimeField(auto_now_add=True,
+                                            db_comment="fecha y hora del registro")
+    
     fechaHoraActualizacion = models.DateTimeField(auto_now_add=True,
                                             db_comment="fecha y hora de ultima actualizacion")
     
-
+    def __str__(self)-> str:
+        return self.solTipoSolucion
     
+class SolucionCasoTipoProcedimientos(models.Model):
+    solSolucionCaso = models.ForeignKey(SolucionCaso, on_delete=models.PROTECT,
+                                        db_comment = "hace referencia al tipo de procedimiento de la solucion")
+    
+    solTipoProcedimiento = models.ForeignKey(TipoProcedimiento, on_delete=models.PROTECT,
+                                             db_comment="Hace referencia al tipo de procedimiento de la solucion")
