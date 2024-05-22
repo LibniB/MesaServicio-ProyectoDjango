@@ -5,9 +5,10 @@
 
 {% block contenido %}
 
-<div class="iniciarSesion" style="margin:0 auto" >
+<div class="login card mt-5 " style="margin:0 auto; width:50%"  >
     <h3 class="text-center fw-bold">Iniciar Sesion</h3> <!-- Corregido el título -->
-    <form action="/iniciarSesion" class="w-50 was-validated" style="margin: 0 auto;" method="post">
+    <form action="login/" class="w-50" style="margin: 0 auto;" method="post">
+        {% csrf_token %}
         <div class="mb-3">
             <label for="txtUser" class="fw-bold">Usuario:</label>
             <input type="text" name="txtUser" id="txtUser"  class="form-control" required>
@@ -19,8 +20,7 @@
         </div>
         <div>
             <button class="btn btn-success">Ingresar</button>
-            <a href="/iniciarSesion"><button class="btn btn-secondary">Cancelar</button></a> 
-            <a href="/registro" class="btn btn-primary">Registrarse</a>
+            <a href="/login"><button class="btn btn-secondary">Cancelar</button></a> 
         </div>
     </form>
 </div>
