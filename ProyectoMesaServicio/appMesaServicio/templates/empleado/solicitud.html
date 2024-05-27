@@ -10,9 +10,34 @@
 
 {%block contenido%}
 <h3 class="text-center mt-3 fw-bold">REGISTRO DE SOLICITUD</h3>
-<div>
 
-</div>
+<form action="/registroSolicitud/" method="post" class="w-75 was validates" style="margin:0 auto">
+    {% csrf_token %}
+    <div class="mb-3">
+        <label for="txtDescripcion" class="fw-bold">Descripcion</label>
+        <textarea name="txtDescripcion" id="" rows="5" cols="10" class="form-control"
+        placeholder="Haga una descripcion de lo que le pasa al equipo" required>  
+        </textarea>
+    </div>
+    <div class="mb-3">
+        <label for="cbOficinaAmbiente" class="fw-bold">Oficina-Ambiente</label>
+        <select name="cbOficinaAmbiente" id="" class="form-select" required>
+            <option value="">Seleccione</option> 
+            {%for ofi in oficinasAmbientes%}
+            <option value="{{ofi.id}}">{{ofi.ofiNombre}}</option>
+            {%endfor%}
+        </select>
+    </div>
+    </div>
+    <div class="mb-3">
+        <button class="btn btn-success">Registrar</button>
+        <button type="reset" class="btn btn-secondary">Cancelar</button>
+    </div>
+    <div>
+        {{mensaje}}
+    </div>
+</form>
+
 {%endblock%}
 {%block piePagina%}
     {%include "piePagina.html"%}

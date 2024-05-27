@@ -78,7 +78,7 @@ class Caso(models.Model):
     casSolicitud = models.ForeignKey(Solicitud,on_delete=models.PROTECT,
                                      db_comment="Hace referencia a la solicitud que genero el caso")
     
-    casCodigo = models.CharField(max_length=10,unique=True,
+    casCodigo = models.CharField(max_length=20,unique=True,
                                  db_comment="Codigo unico del caso")
     
     casUsuario = models.ForeignKey(User,on_delete=models.PROTECT,

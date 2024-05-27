@@ -26,6 +26,8 @@ urlpatterns = [
     path('inicioTecnico/', views.inicioTecnico),
     path('inicioEmpleado/', views.inicioEmpleado),
     path('vistaSolicitud/', views.vistaSolicitud),
+    path('registroSolicitud/', views.registroSolicitud),
+    path('salir/', views.salir),
     
     
 ]

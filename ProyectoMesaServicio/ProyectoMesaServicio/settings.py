@@ -139,3 +139,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # new 
 
 AUTH_USER_MODEL ='appMesaServicio.User'
+
+#variables configuration correo
+EMAIL_HOST='smtp.gmail.com'
+EMAIL_HOST_USER='libnibernate@gmail.com'
+EMAIL_HOST_PASSWORD='ekkqmhyvpnckxfky'
+EMAIL_PORT=587
+EMAIL_USE_TLS= True
