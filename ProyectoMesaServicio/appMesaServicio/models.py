@@ -93,7 +93,7 @@ class Caso(models.Model):
     fechaHoraActualizacion = models.DateTimeField(auto_now_add=True,
                                             db_comment="fecha y hora de ultima actualizacion")
     def __str__(self)-> str:
-        return 
+        return self.casSolicitud.solDescripcion
 
 class TipoProcedimiento(models.Model):
     tipNombre = models.CharField(max_length=20,unique=True,

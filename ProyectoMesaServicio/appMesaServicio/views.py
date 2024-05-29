@@ -1,5 +1,6 @@
 from datetime import datetime
-from django.shortcuts import render, redirect
+from django.http import JsonResponse
+from django.shortcuts import render, redirect 
 from django.contrib.auth import authenticate
 from django.contrib import auth
 from appMesaServicio.models import *
@@ -103,8 +104,8 @@ def registroSolicitud (request):
                         casUsuario=userCaso,
                         casEstado=estado)
             caso.save()
-            #enviar correo
-            asunto='Registro solicitud mesa Servicio'
+            #enviar correo 
+            asunto='Registro solicitud - Mesa de Servicio'
             mensajeCorreo=f'Cordial saludo, <b>{user.first_name} {user.last_name}</b>, nos permitimos \
                 informarle que su solicitud fue registrada en nuestro sistema con el número de caso \
                 <b>{codigoCaso}</b>. <br><br> Su caso será gestionado en el menor tiempo posible, \
@@ -139,11 +140,68 @@ def enviarCorreo(asunto=None,mensaje=None,destinatario=None,archivo=None):
         if archivo != None:
             correo.attach_file(archivo)
         correo.send(fail_silently=True)
+        print("enviado")
     except SMTPException as error:
         print(error)
         
-        
+
+def listarCasos(request):
+        try:
+            mensaje=""
+            listaCasos= Caso.objects.all()
+            tecnicos = User.objects.filter(groups__name__in=['Tecnico'])
+            
+        except Error as error:
+            mensaje= str(error)
+        retorno = {"listaCasos":listaCasos, 
+                "tecnicos":tecnicos, 
+                "mensaje":mensaje}
+        return render(request, "administrador/listarCasos.html",retorno)
+    
+def listarEmpleadosTecnicos(request):
+    try:
+        mensaje=""
+        tecnicos = User.objects.filter(groups__name__in=['Tecnico'])
+    except Error as error:
+        mensaje= str(error)
+    retorno={"tecnico":tecnicos, "mensaje":mensaje}
+    
+    return JsonResponse(retorno)
+
+
+def asignarTecnicoCaso(request):
+    if request.user.is_authenticated:
+        try:
+            idTecnico= int(request.POST['cbTecnico'])
+            userTecnico = User.objects.get(pk=idTecnico)
+            idCaso= int(request.POST['idCaso'])
+            caso = Caso.objects.get(pk=idCaso)
+            caso.casUsuario = userTecnico
+            caso.casEstado = "En Proceso"
+            caso.save()
+            #enviar correo al tecnico
+            asunto='Asignacion caso - mesa de servicio'
+            mensajeCorreo=f'Cordial saludo, <b>{userTecnico.first_name} {userTecnico.last_name}</b>, nos permitimos \
+                informarle que se le ha asignado un caso para dar solucion. Codigo de caso: \
+                <b>{caso.casCodigo}</b>. <br><br> Se solicita se atienda de manera oportuna \
+                según los acuerdos de solución establecidos para la Mesa de Servicios del CTPI-CAUCA.\
+                <br><br>Lo invitamos a ingresar al sistema para gestionar sus casos asignados en la siguiente url:\
+                http://mesadeservicioctpicauca.sena.edu.co.'
+            thread= threading.Thread(
+                target=enviarCorreo, args=(asunto, mensajeCorreo,[userTecnico.email]))
+            thread.start()
+            mensaje="Caso asignado"
+        except Error as error:
+            mensaje = str(error)
+        return redirect('/listarCasosParaAsignar/')
+    else:
+        mensaje = "Debe iniciar sesion"
+    return render(request,"frmIniciarSesion.html",{"mensaje":mensaje})
+
 def salir(request):
     auth.logout(request)
     return render(request,"frmIniciarSesion.html",
                   {"mensaje":"Ha cerrado la sesion"})
+    
+    
+    
