@@ -100,7 +100,7 @@ class TipoProcedimiento(models.Model):
                                  db_comment="nombre del tipo de procedimiento")
     
     tipDescripcion = models.TextField(max_length=1000,
-                                      db_comment="texto con la descripcion del tipo de procedimiento")
+                                      db_comment="texto con la descripcion del tipo de procedimiento",default='Sin descripcion')
     
     fechaHoraCreacion = models.DateTimeField(auto_now_add=True,
                                             db_comment="fecha y hora de la solicitud")

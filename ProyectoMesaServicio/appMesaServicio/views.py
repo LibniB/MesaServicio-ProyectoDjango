@@ -2,6 +2,7 @@ from datetime import datetime
 from django.http import JsonResponse
 from django.shortcuts import render, redirect 
 from django.contrib.auth import authenticate
+from django.views.decorators.csrf import csrf_protect, csrf_exempt
 from django.contrib import auth
 from appMesaServicio.models import *
 from random import *
@@ -48,7 +49,7 @@ def inicioTecnico (request):
         mensaje = "Debe iniciar sesion"
     return render(request,"frmIniciarSesion.html",{"mensaje":mensaje})
 
-
+@csrf_exempt
 def login (request):
     username = request.POST["txtUser"]
     password = request.POST["txtPassword"]
@@ -197,6 +198,87 @@ def asignarTecnicoCaso(request):
     else:
         mensaje = "Debe iniciar sesion"
     return render(request,"frmIniciarSesion.html",{"mensaje":mensaje})
+
+def listarCasosAsignadosTecnico(request):
+    if request.user.is_authenticated:
+        try:
+            mensaje=""
+            listaCasos= Caso.objects.filter(casEstado='En Proceso',casUsuario=request.user)
+            listarTipoProcedimiento = TipoProcedimiento.objects.all().values()
+        except Error as error:
+            mensaje= str(error)
+        retorno ={"mensaje":mensaje,"listaCasos":listaCasos,
+                  "listaTipoSolucion":tipoSolucion,
+                  "listarTipoProcedimiento":listarTipoProcedimiento}
+        
+        return render (request,"tecnico/listarCasosAsignados.html",retorno)
+    else:
+        mensaje = "Debe iniciar sesion"
+    return render(request,"frmIniciarSesion.html",{"mensaje":mensaje})
+
+def solucionarCaso(request):
+    if request.user.is_authenticated:
+        try:
+            if transaction.atomic():
+                procedimiento = request.POST['txtProcedimiento']
+                tipoProc = request.POST['cbTipoProcedimiento']
+                tipoProcedimiento = TipoProcedimiento.objects.get(pk=tipoProc)
+                tipoSolucion = request.POST['cbTipoSolucion']
+                idCaso =int(request.POST['idCaso'])
+                caso = Caso.objects.get(pk=idCaso)
+                solucionCaso= SolucionCaso(solCaso=caso,
+                                        solProcedimiento=procedimiento,
+                                        solTipoSolucion=tipoSolucion)
+                
+                solucionCaso.save()
+                #actulizar estado de caso dependiendo dle tipo de solucion
+                if(tipoSolucion == "Definitiva"):
+                    caso.casEstado="Finalizada"
+                    caso.save()
+                    
+                #crear el objeto solcuoon tipo procedimiento
+                solucionCasoTipoProcedimiento=SolucionCasoTipoProcedimientos(solSolucionCaso=solucionCaso,
+                                                                            solTipoProcedimiento=tipoProcedimiento)
+                solucionCasoTipoProcedimiento.save()
+                
+                #enviar correo al empleado que realizó la solicitud
+                solicitud= caso.casSolicitud
+                userEmpleado = solicitud.solUsuario
+                
+                print("Dirección de correo electrónico del usuario:", userEmpleado.email)
+                
+                asunto='Solucion caso - CTPI CAUCA'
+                mensajeCorreo= f"""Cordial saludo, <b>{userEmpleado.first_name} {userEmpleado.last_name}</b>, nos permitimos informarle que se ha dado solucion de tipo {tipoSolucion} al caso identificado con codigo: 
+                <b>{caso.casCodigo}</b>. <br><br> Lo invitamos a revisar el equipo y verificar la solucion.<br><br>
+                Para consultar en detalle la solucion,ingresar al sistema para gestionar sus casos asignados en la siguiente url:<br>
+                http://mesadeservicioctpicauca.sena.edu.co."""
+                thread= threading.Thread(
+                target=enviarCorreo, args=(asunto, mensajeCorreo,[userEmpleado.email]))
+                thread.start()
+        except Error as error:
+            transaction.rollback()
+            mensaje= str(error)
+        retorno = {"mensaje":mensaje}
+        return redirect("/listarCasosAsignados/")
+    else:
+        mensaje = "Debe iniciar sesion"
+        return render(request,"frmIniciarSesion.html",{"mensaje":mensaje})
+
+
+def listarSolicitudes(request):
+    if request.user.is_authenticated:
+        try:
+            mensaje=""
+            solicitud = Solicitud.objects.all()
+            
+        except Error as error:
+            mensaje= str(error)
+        retorno = {"mensaje":mensaje,"solicitud":solicitud}
+        return render(request,"empleado/listarSolicitudes.html",retorno)
+    else:
+        mensaje = "Debe iniciar sesion"
+    return render(request,"frmIniciarSesion.html",{"mensaje":mensaje})
+
 
 def salir(request):
     auth.logout(request)

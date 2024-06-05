@@ -29,6 +29,9 @@ urlpatterns = [
     path('registroSolicitud/', views.registroSolicitud),
     path('listarCasosParaAsignar/',views.listarCasos),
     path('asignarTecnicoCaso/', views.asignarTecnicoCaso),
+    path('listarCasosAsignados/', views.listarCasosAsignadosTecnico),
+    path('solucionarCaso/',views.solucionarCaso),
+    path('listarSolicitudes/', views.listarSolicitudes),
     path('salir/', views.salir),
    
     
