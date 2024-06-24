@@ -35,70 +35,22 @@
                 <th>Oficina-Ambiente</th>
                 <th>Fecha</th>
                 <th>Estado</th>
-                <th>Tecnico</th>
             </tr>
         </thead>
         <tbody>
-            {%for solicitud in solicitud%}
+            {%for caso in caso%}
                 <tr>
-                    <td>{{solicitud.solDescripcion}}</td>
-                    <td>{{solicitud.solOficinaAmbiente.ofiNombre}}</td>
-                    <td>{{solicitud.fechaHoraCreacion}}</td>
-                    <td>{{solicitud.casEstado}}</td>
-                    <td class="text-center">
-                        <i id="btnAbrirModal" onclick="agregarIdCaso('{{caso.id}}')" class="fa fa-check-square-o" style="color: #ffa500;" data-bs-toggle="modal" data-bs-target="#modalTecnicos"></i>
-                    </td>
+                    <td>{{caso.casSolicitud.solDescripcion}}</td>
+                    <td>{{caso.casSolicitud.solOficinaAmbiente.ofiNombre}}</td>
+                    <td>{{caso.casSolicitud.fechaHoraCreacion}}</td>
+                    <td>{{caso.casEstado}}</td>
                 </tr>
             {%endfor%}
         </tbody>
         
     </table>
-    <!-- Button to Open the Modal -->
- <!--<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalTecnicos">
-    Open modal
-  </button>-->
+
   
-  <!-- The Modal -->
-  <div class="modal" id="modalTecnicos">
-    <div class="modal-dialog">
-      <div class="modal-content">
-  
-        <!-- Modal Header -->
-        <div class="modal-header">
-          <h4 class="modal-title">Asignacion Tecnicos Casos</h4>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-        </div>
-  
-        <!-- Modal body -->
-        <div class="modal-body">
-          <form action="/asignarTecnicoCaso/" method="post" >
-            {% csrf_token %}
-            <div>
-                <label for="cbTecnico" class="fw-bold">Tecnico de soporte</label>
-                <select name="cbTecnico" id="cbTecnico" class="form-select">
-                    <option value="">Seleccione</option>
-                    {%for tecnico in tecnicos%}
-                        <option value="{{tecnico.id}}">
-                            {{tecnico.first_name}}
-                            {{tecnico.last_name}}
-                        </option>
-                    {%endfor%}
-                </select> 
-            </div>
-            <input type="hidden" name="idCaso" id="idCaso" value="">
-            <button type="submit" class="btn btn-success" data-bs-dismiss="modal">Asignar</button>
-            <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cerrar</button>
-          </form>
-        </div>
-  
-        <!-- Modal footer -->
-        <div class="modal-footer">
-            
-        </div>
-  
-      </div>
-    </div>
-  </div>
     <script>
         new DataTable('#tblCasos', {
             layout: {

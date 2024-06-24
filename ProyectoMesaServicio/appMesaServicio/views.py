@@ -13,6 +13,11 @@ from django.core.mail import EmailMultiAlternatives
 from django.template.loader import get_template
 import threading
 from smtplib import SMTPException
+#para contraseña
+import string
+import random
+#importar modelo 
+from django.contrib.auth.models import Group
 
 # Create your views here.
 
@@ -269,16 +274,127 @@ def listarSolicitudes(request):
     if request.user.is_authenticated:
         try:
             mensaje=""
-            solicitud = Solicitud.objects.all()
+            caso = Caso.objects.all()
             
         except Error as error:
             mensaje= str(error)
-        retorno = {"mensaje":mensaje,"solicitud":solicitud}
+        retorno = {"mensaje":mensaje,"caso":caso}
         return render(request,"empleado/listarSolicitudes.html",retorno)
     else:
         mensaje = "Debe iniciar sesion"
     return render(request,"frmIniciarSesion.html",{"mensaje":mensaje})
 
+
+
+def vistaGestionarUsuarios(request):
+    if request.user.is_authenticated:
+        usuarios = User.objects.all()
+        retorno = {"usuarios": usuarios, "user": request.user,
+                   "rol": request.user.groups.get().name}
+        return render(request, "administrador/vistaGestionarUsuario.html", retorno)
+    else:
+        mensaje = "Debe iniciar sesión"
+        return render(request, "frmIniciarSesion.html", {"mensaje": mensaje})
+
+
+def vistaRegistrarUsuario(request):
+    if request.user.is_authenticated:
+        roles = Group.objects.all()
+        retorno = {"roles": roles, "user": request.user, 'tipoUsuario': tipoUsuario,
+                   "rol": request.user.groups.get().name}
+        return render(request, "administrador/frmRegistrarUsuario.html", retorno)
+    else:
+        mensaje = "Debe iniciar sesión"
+        return render(request, "frmIniciarSesion.html", {"mensaje": mensaje})
+
+def registrarUsuario(request):
+    if request.user.is_authenticated:
+        try:
+            nombres = request.POST['txtNombres']
+            apellidos = request.POST['txtApellidos']
+            correo = request.POST['txtCorreo']
+            tipo = request.POST['cbTipo']
+            foto = request.FILES.get("fileFoto")
+            idRol = int(request.POST['cbRol'])
+            with transaction.atomic():
+                user = User(username=correo,first_name=nombres,
+                            last_name=apellidos,email=correo,userTipo=tipo,userFoto=foto)
+                user.save()
+                rol=Group.objects.get(pk=idRol)
+                user.groups.add(rol)
+                if(rol.name == "Administrador"):
+                    user.is_staff=True
+                user.save()
+                passwordGenerado = generarPassword()
+                print(f"password {passwordGenerado}")
+                user.set_password(passwordGenerado)
+                user.save()
+                
+                mensaje = "Usuario agregado correctamente"
+                retorno = {"mensaje":mensaje}
+                
+                #enviar correo al usuario
+                asunto= 'Registro Sistema Mesa de Servicio CTPI-CAUCA'
+                mensaje = f'Cordial saludo, <b>{user.first_name} {user.last_name}</b>, nos permitimos \
+                    informarle que usted ha sido registrado en el Sistema de Mesa de Servicio \
+                    del Centro de Teleinformática y Producción Industrial CTPI de la ciudad de Popayán, \
+                    con el Rol: <b>{rol.name}</b>. \
+                    <br>Nos permitimos enviarle las credenciales de Ingreso a nuestro sistema.<br>\
+                    <br><b>Username: </b> {user.username}\
+                    <br><b>Password: </b> {passwordGenerado}\
+                    <br><br>Lo invitamos a utilizar el aplicativo, donde podrá usted \
+                    realizar solicitudes a la mesa de servicio del Centro. Url del aplicativo: \
+                    http://mesadeservicioctpi.sena.edu.co.'
+                thread=threading.Thread(
+                    target=enviarCorreo, args=(asunto,mensaje,[user.email]))
+                thread.start()
+                return redirect("/vistaGestionarUsuarios/",retorno)
+                
+        except Error as error:
+            transaction.rollback()
+            mensaje= f"{error}"
+        retorno = {"mensaje":mensaje}
+        return render(request, "administrador/frmRegistrarUsuario.html",retorno)
+    else:
+        mensaje="Debe iniciar sesion"
+        return render(request,"frmIniciarSesion.html",{"mensaje":mensaje})
+
+def generarPassword():
+    longitud=10
+    caracteres= string.ascii_lowercase + \
+        string.ascii_uppercase + string.digits + string.punctuation
+    password= ''
+    
+    for i in range(longitud):
+        password += ''.join(random.choice(caracteres))
+    return password
+
+def recuperarClave(request):
+    try:
+        correo = request.POST['txtCorreo']
+        user = User.objects.filter(email=correo).first()
+        if (user):
+            passwordGenerado = generarPassword()
+            user.set_password(passwordGenerado)
+            user.save()
+            mensaje = "Contraseña Actualiza Correctamente y enviada al Correo Electrónico"
+            retorno = {"mensaje": mensaje}
+            asunto = 'Recuperación de Contraseña Sistema Mesa de Servicio CTPI-CAUCA'
+            mensaje = f'Cordial saludo, <b>{user.first_name} {user.last_name}</b>, nos permitimos \
+                    informarle que se ha generado nueva contraseña para ingreso al sistema. \
+                    <br><b>Username: </b> {user.username}\
+                    <br><b>Password: </b> {passwordGenerado}\
+                    <br><br>Para comprobar ingresar al sistema haciendo uso de la nueva contraseña.'
+            thread = threading.Thread(
+                target=enviarCorreo, args=(asunto, mensaje, [user.email]))
+            thread.start()
+        else:
+            mensaje = "No existe usuario con correo ingresado. Revisar"
+            retorno = {"mensaje": mensaje}
+    except Error as error:
+        mensaje = str(error)
+
+    return render(request, 'frmIniciarSesion.html', retorno)
 
 def salir(request):
     auth.logout(request)
