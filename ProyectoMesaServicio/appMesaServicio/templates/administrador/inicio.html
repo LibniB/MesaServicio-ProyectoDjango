@@ -10,9 +10,33 @@
 
 {%block contenido%}
 <h3 class="text-center mt-3 fw-bold">MODULO ADMINISTRADOR</h3>
-<div>
+<br/>
 
-</div>
+<div class="row" style="margin: 0 auto !important; width: 55%">
+    <div class="col-sm" style="margin-bottom: 5rem;">
+      <a href="/vistaGestionarUsuarios/">
+        <div class="text-center icon" style="font-size: 8rem;">
+          <i class="fa fa-user fa-fade"></i>
+        </div>
+      </a>
+      <div class="text-center fw-bold">Gestionar Usuarios</div>
+    </div>
+    <div class="col-sm">
+      <a href="/listarCasosParaAsignar">
+        <div class="text-center icon" style="font-size: 8rem;">
+          <i class="fa fa-eye fa-fade text-danger"></i>
+        </div>
+      </a>
+      <div class="text-center fw-bold">Ver Solicitudes</div>
+    </div>
+    <div class="col-sm" style="margin-bottom: 5rem;">
+      <a href="#">
+        <div class="text-center icon" style="font-size: 8rem;">
+          <i class="fa fa-clipboard fa-fade"></i>
+        </div>
+      </a>
+      <div class="text-center fw-bold">Reportes</div>
+    </div>
 {%endblock%}
 {%block piePagina%}
     {%include "piePagina.html"%}

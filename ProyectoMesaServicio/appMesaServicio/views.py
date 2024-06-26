@@ -18,7 +18,9 @@ import string
 import random
 #importar modelo 
 from django.contrib.auth.models import Group
-
+# api
+from rest_framework import generics
+from appMesaServicio.serializers import OficinaAmbienteSerializer
 # Create your views here.
 
 def inicio(request):
@@ -395,6 +397,17 @@ def recuperarClave(request):
         mensaje = str(error)
 
     return render(request, 'frmIniciarSesion.html', retorno)
+
+# vistas de la api
+class OficinaAmbienteList(generics.ListCreateAPIView):
+    queryset = OficinaAmbiente.objects.all()
+    serializer_class = OficinaAmbienteSerializer
+
+class OficinaAmbienteDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = OficinaAmbiente.objects.all()
+    serializer_class = OficinaAmbienteSerializer
+
+
 
 def salir(request):
     auth.logout(request)

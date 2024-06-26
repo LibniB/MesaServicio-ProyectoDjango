@@ -39,10 +39,14 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'appMesaServicio',
-    'bootstrap5'
+    'bootstrap5',
+    'rest_framework',
+    'corsheaders',
+    'coreapi',
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -146,3 +150,11 @@ EMAIL_HOST_USER='libnibernate@gmail.com'
 EMAIL_HOST_PASSWORD='ekkqmhyvpnckxfky'
 EMAIL_PORT=587
 EMAIL_USE_TLS= True
+
+#documentar api
+REST_FRAMEWORK = {
+    "DEFAULT_SCHEMA_CLASS":"rest_framework.schemas.coreapi.AutoSchema",
+}
+
+CORS_ORIGIN_ALLOW_ALL = True
+ALLOWED_HOSTS = ['*']

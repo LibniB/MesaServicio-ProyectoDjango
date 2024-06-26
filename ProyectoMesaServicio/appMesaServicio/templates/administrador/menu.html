@@ -1,7 +1,7 @@
 <nav class="navbar navbar-expand-sm bg-dark navbar-dark">
     <div class="container-fluid">
       <a class="navbar-brand" href="#">
-        <img src="https://static.vecteezy.com/system/resources/thumbnails/013/993/061/small/mugiwara-the-illustration-vector.jpg" alt="" style="width: 40px;" class="rounded-pill ">
+        <img src="/media/{{user.userFoto}}" alt="" style="width: 40px;" class="rounded-pill ">
       </a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#collapsibleNavbar">
         <span class="navbar-toggler-icon"></span>
@@ -23,9 +23,6 @@
           <li class="nav-item">
             <a class="nav-link" href="#">Reportes</a>
           </li>  
-          <li class="nav-item">
-            <a class="nav-link" href="/salir/">Salir</a>
-          </li>
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">Dropdown</a>
             <ul class="dropdown-menu">
@@ -33,6 +30,9 @@
               <li><a class="dropdown-item" href="#">Another link</a></li>
               <li><a class="dropdown-item" href="#">A third link</a></li>
             </ul>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/salir/">Salir</a>
           </li>
         </ul>
       </div>
